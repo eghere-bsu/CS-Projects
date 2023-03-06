@@ -1,0 +1,198 @@
+****************
+* Project 3 - CircuitTracer
+* CS221 Section 2
+* 29 April 2022
+* Ethan Ghere
+**************** 
+
+OVERVIEW:
+
+ This program traces the most efficient route on a circuit board 
+ by using a brute force search algorithm. The user may configure the
+ search algorithm, using either a stack or queue storage system (as
+ well as the option to visualize the searching process.)
+
+
+INCLUDED FILES:
+
+ * CircuitBoard.java - class representing a circuit board which
+    handles reading files and populating boards
+ * CircuitTracer.java - driver class which validates configurations
+    and searches through a given circuit board
+ * TraceState.java - class representing a state during the search
+    algorithm process
+ * Storage.java - class which implements either a stack or queue to
+    store TraceStates on a CircuitBoard
+ * InvalidFileFormatException.java - exception used by program
+ * OccupiedPositionException.java - exception used by program
+ * maze.dat - example circuitboard referenced in ANALYSIS
+ * spread.dat - example circuitboard referenced in ANALYSIS
+ * README - this file
+
+
+COMPILING AND RUNNING:
+
+ The program must first be compiled using
+ $ javac CircuitTracer.java
+
+ CircuitTracer has configurable arguments which must be used to run
+ the program. The following section explains the usage message:
+ $ java CircuitTracer [-s | -q] [-c | -g] [filename] [-f delay]
+
+ [-s | -q] - configures the type of storage implementation. 
+        -s - uses a stack.
+        -q - uses a queue.
+ [-c | -g] - configures the preferred visuals for CircuitTracer.
+        -c - uses a CLI interface.
+        -g - uses a GUI interface (currently unimplemented).
+ [-f]      - flag for "fancy mode." More details below.
+ [delay]   - amount of delay, in milliseconds, to be used for fancy mode.
+
+
+DESIGN:
+
+ Before a circuit board can be traced, the tracer must understand what
+ a circuit board is (and what a correct one looks like). A circuit
+ board has six major components: the grid size, open spaces, closed
+ spaces, one start point, one end point, and tracing points (these are
+ created by the tracer class). In a circuit board data file, the first
+ line is two integers which specify the number of rows and columns. 
+ The next lines of data represent the contents of the board: O, X, 1, 2,
+ and T (respective to the earlier list). The constructor verifies that each 
+ board has the correct number of rows and columns specified as well as 
+ only containing one 1 and one 2, while the rest of the board consists of 
+ only X's and O's.
+
+ This information is passed to the CircuitTracer class, which runs the 
+ search algorithm. The tracer checks if it can move up, down, left, or right,
+ and then adds the possible moves to storage. It repeats this process until 
+ it runs out of available spaces, logging if it successfully completes any 
+ routes along the way. The shortest route is always stored; take note that 
+ circuit boards can have multiple ways to complete the same routes.
+
+ About halfway through the development process, I wondered what it would
+ look like to watch the search algorithm in action. I figured watching 
+ the program move organically may provide some useful insight into its
+ functionality. From this idea was birthed my own invention: fancy mode. 
+
+ Fancy mode is a CLI visualization of how the search algorithm runs through
+ a circuit board. Fancy mode achieves this through printing out a copy of the
+ board after each new TraceState is made; the start point, end point, and
+ tracing points are also colorized with ANSI colors for visibility. The speed
+ at which the screen refreshes between each trace state is defined in the
+ configurations. Additionally, fancy mode determines the number of currently
+ completed runs alongside the current shorted run tested. The numubers update
+ automatically as the algorithm finishes.
+ 
+ This simple addition proved to be very beneficial for understanding the 
+ differences in each storage implementation. I will use this to supplement
+ my analysis.
+
+
+ANALYSIS:
+ 
+ The storage type greatly affects the sequence by which the algorithm 
+ searches through a circuit board. 
+ 
+ A stack is a first-in, first-out storage type; this results in a "depth-
+ based" search. When a new possible TraceState is stored, it is pushed 
+ to the front of the stack; this state is the next one to be checked. 
+ This causes the algorithm to exhaustively check one specific route before 
+ moving on. It functions very similar as to how one may try solving a maze
+ with a pencil and paper, drawing along a specific path until it reached a
+ dead-end. This is best visualized in fancy mode with a large, maze-like 
+ board with lots of X's. Consider running maze.dat with these configurations:
+ $ java CircuitTracer -s -c maze.dat -f 15
+ 
+ A queue is a last-in, first-out sotrage type; this results in a "breadth-
+ based" search. When a new possible TraceState is stored, it is sent to the
+ back of the queue; all other states must be checked prior to it. This creates
+ an even distribution of possible avenues, exploring each the posibilities of 
+ checking in every direction before moving forward with one specific direction.
+ It looks similar to a spider web in how the algorithm will evenly branch out
+ in each direction. In fancy mode, this is best visualized in an board with
+ a majority of O's but with evenly distributed X's. Consider running spider.dat
+ with these configurations:
+ $ java CircuitTracer -q -c spider.dat -f 15 
+
+ The total number of search states is not affected by choosing either a stack
+ or queue implementation, as both use the same searching algorithm. The stack and 
+ queue implementation differs in the speed at which it can finds the first optimal 
+ route. A queue will almost always find the most optimal route before a stack
+ (the only excpetion is if the board has a direct path to the right from 1 to 2).
+ This is because the queue evenly explores each avenue instead of sticking to one 
+ path and working backwards. This is why I included a "Best route" feature in 
+ fancy mode, as it very well demonstrates this concept. 
+
+ This is not to say that there is no advantage to a stack, however. A stack uses 
+ less memory than a queue because it searches all possible states of a certain
+ pattern at once. It will work its way through a system and prune a branch of
+ pathways as soon as it realizes there are no possible routes in those states.
+
+ The runtimme of the search algorithm is directly related to the number of O's 
+ present on the board. The more O's that are adjacent to one another, the longer 
+ the brute force algorithm takes to complete. In my testing, a 12 by 12 board with
+ minimal X's took several minutes to complete in fancy mode with a delay of 10ms. 
+ I understood why this was happening by looking at the algorithm's structure; the 
+ while loop with the check for adjacent O's brings numtime big O to O(n).
+ 
+
+
+TESTING:
+
+ The majority of testing for this program relied on the given tester class. I spent
+ the majority of my time failing programs (some of which I was unable to see, but more
+ on that in the discussion below). The crux of passing all of the tests revolved around 
+ command line arguments, as there is a very specific manner in which the arguments 
+ should be implemented. This initially threw a wrench in my fancy mode plans. How could
+ I possible implement a new argument if it requires me to not include any extra arguments?
+ The answer lied in thinking outside the box. The tester wanted to check if the length
+ of the args[] array was not three, meaning it would tell the use how to properly use the
+ command and then promptly exit. But nested in that command is another condition which 
+ checks if args[] has two extra arguments which are specific for fancy mode. This made
+ my program both idiot-proof and professor-proof. I avoided the seemingly paradoxical 
+ task of adding a new argument while still staying within the confines of the test suite.
+
+ 
+DISCUSSION:
+ 
+ This project was certainly my favorite project of the year. I saw the topics I learned
+ over this semester form into a very thorough end product. It almost felt like a call
+ back to GridMonitor in a way, since the means by which we move through the board felt
+ very similar. But my passion for this project didn't fully come about until I added
+ fancy mode. Originally, fancy mode was not even a mode at all. The terminal output
+ simply had everything neatly formatted, but this ended up breaking the tester program
+ multiple times. The failing output would turn blue and yellow, the terminal would constantly clear itself, and regex characters would litter in the output.
+
+ Fancy mode relies on regex symbols for ANSI coloring and clearing
+ the terminal; in testing, the tester class would catch an exception that would
+ contain these expressions, causing the appearance of the output to be altered by
+ the signals. This was due to my regular output containing more than what was 
+ required. Any excess characters were scanned as if they were the result of a
+ toString() output, meaning my regex formatted output was being returned as a token
+ in the tester. (Line 777 of the tester class was specifically causing this. Sadly,
+ I'll be docked points if I include the tester class here. I'm sure you have it.) 
+
+ I ended up having to do quite a bit of research on my own about regular expressions,
+ because I wanted to fully implement my idea of a colorful animation that represents
+ the brute force algorithm. But this extra design concept is what motivated me to 
+ press on and learn more; I love adding design to my programs, and when I successfully
+ implemented fancy mode, I felt extremely proud with my work.
+ 
+ 
+EXTRA CREDIT:
+
+ According to the guidelines of this project, I have not attempted any of the
+ offered extra credit. It is my personal preference to work with terminals, as I
+ enjoy their powerful simplicity. I believe fancy mode's CLI interface may be more 
+ useful than that of a graphical implementation of this concept. I hope that this
+ may be worth something of value, but that is ultimately for you to decide.
+
+ If possible, I'd also like to know what you think of it. I think maybe adding some
+ form of search visualization would be a fun and useful extra credit opportunity
+ for future classes, if I'm not to recieve any. Just a thought. :)
+
+
+----------------------------------------------------------------------------
+
+Thank you for reading.

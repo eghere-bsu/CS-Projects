@@ -1,0 +1,132 @@
+****************
+* PROJECT 2: DoubleLinkedList
+* CS 221 Section 2
+* April 8th, 2022
+* Ethan Ghere
+**************** 
+
+OVERVIEW:
+
+ This program is a test suite for the ADT implementation of an 
+ IndexedUnsortedList. The program will test various change scenarios
+ and return statistics of tests passed and failed.
+
+INCLUDED FILES:
+
+ * ListTester.java - master test suite class 
+ * IUDoubleLinkedList.java - the specific implementation of...
+ * IndexedUnsortedList.java - the generic type of list the tester tests
+ * Node.java - class implemented by IUDoubleLinkedList 
+ * README - this file
+
+COMPILING AND RUNNING: 
+
+ Compile every java given in this directory with the command: 
+ $ javac *.java
+
+ Then, run the ListTester class to test IUDoubleLinkedList:
+ $ java ListTester.java [-args]
+
+ The program has argument flags to give specific test outputs.
+ Append the previous command with flags to do the following:
+    -a : print results from all tests (default arguments only
+         print failed tests)
+    -s : hide Strings from toString() tests
+    -m : hide section summaries in output
+
+ Console output will give results from the test suite upon finish. 
+
+PROGRAM DESIGN AND IMPORTANT CONCEPTS:
+
+ The tester revolves around a specific paradigm for parsing most
+ tests. Each type of test (empty, single double, triple) has the 
+ same parameters (shown below in pseudo-code):
+ 
+ testType(scenario method, scenario name, contents, returned value) 
+
+ this format is used in a single printf statement repeated for each 
+ test of each test type.
+
+ The test suite uses change scenarios to test common situations that
+ may occur when implementing the the tested ADT. Each tested change
+ scenario follows a consistent naming scheme:
+ 1. List prior to change scenario
+ 2. Name of method(s) to be performed on list
+ 3. Modified list after successful scenario change
+
+ Examples of change scenarios:
+ [] -> add(A) -> [A]
+ [A,B] -> set(0,C) -> [C,B]
+ [A,B,C] -> iteratorRemoveAfterNextA -> [B,C]
+
+ The nameing of change scenario method follows the same naming
+ scheme (these methods are respective to the prior examples):
+ emptyList_addA_A
+ AB_set0C_CB
+ ABC_iterRemoveAfterNextA_BC
+
+ Each of these methods is a lambda method to allow generic 
+ implementation. In layman's terms, the lambda method lays the
+ generic framework to test what the specific ADT is trying to
+ implement. For example, lambda method emptyList_addA_A starts
+ with am empty list and generically adds an A to the list.
+ 
+ IUDoubleLinkedList is a specific implementation of ListTester's 
+ generic IndexedUnsortedList ADT. So the tester will run this ADT
+ to see if the class accurate meets the tester's requirements.
+
+ IUDoubleLinkedList's specific means of list keeping is through
+ Nodes, which IUDoubleLinkedList implements. The nodes have 
+ pointers which points to the adjacent neighbors in the list. Each
+ Node keeps track of an Element, a subclass handled by the Node 
+ class. IUDoubleLinkedList handles the rearranging and modification
+ of these nodes to create an IndexedUnsortedList.
+
+TESTING:
+
+ Test suites usually become incredibly lengthy, as the test suite
+ must test if the program correctly passes, but also if the program
+ correctly fails. Specific implementations may not accurately meet 
+ the suite's requirements, and this must be accounted for. 
+
+ Therefore, the test suite's change scenarios are accompanied by 
+ testing methods that are designed to fail. Exceptions that may
+ occur in implementation must be handled so as to not cause the
+ program to crash. For example, a list  with a size of 2 elements 
+ does not have an element at index 2. The test suite then must 
+ throw an IndexOutOfBoundsException. 
+
+ In the current state that this project stands, not all of the
+ exceptions have been handled. Most of these exceptions are 
+ NullPointerExceptions, meaning that the implementation of the
+ ADT does not correctly handle extreme case scenarios that should
+ otherwise be implemented.
+
+DISCUSSION:
+
+ This is the most difficult programming assignment I have endured
+ in my entire time in the computer science field thus far. That 
+ being said, I spent numerous hours in tutoring sessions and in
+ computer labs attempting to dissect the convoluted and abstracted
+ nightmare that are testing suites. It is incredibly difficult to
+ simultaneously create a test suite while also creating a class 
+ for which the suite will test.
+
+ By the end of this assignment, though, I can say that I have a 
+ more thorough knowledge of test suites and IndexedUnsortedLists. 
+ Walking through the process with a pen and paper proved to be
+ vital to understanding how DoubleLinkedLists function. I have 
+ learned the value of walking through code on paper, and for that
+ I am very thankful.
+
+EXTRA CREDIT:
+
+ As far I know, there is no (current) extra credit. When my ADT is 
+ ran and I learn just how much my IUDoubleLinkedList fantastically 
+ failed, I will be able to make up a fraction of that credit 
+ next week.
+
+ That being said, however, should you feel gracious to award any
+ extra credit on your own free will, I will not decline the offer.
+
+Thank you for reading my documentation.

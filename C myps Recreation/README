@@ -1,0 +1,8 @@
+This program is a re-creation of the myps command found on UNIX-based
+operating systems. This program was intended to run on BSU's onyx
+Linux server; if you would like to simulate the conditions used to
+test this program, use the same proc data found in the test_data
+directory. Because this was compiled for Linux systems, compilation
+for Windows and other operating systems may not be supported.
+
+- Ethan :)
